@@ -224,11 +224,12 @@ name=$(echo "Google Chrome")
 
 #lets check latest version for exe and msi installer
 linklist=$(cat <<EOF
-https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7BCF57E5A6-7C09-370F-166E-82474CC9E559%7D%26lang%3Den%26browser%3D4%26usagestats%3D0%26appname%3DGoogle%2520Chrome%26needsadmin%3Dtrue/update2/installers/ChromeStandaloneSetup.exe
 https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7B85AC0EBA-55ED-C688-BABC-1FAEE83D0F41%7D%26lang%3Den%26browser%3D4%26usagestats%3D0%26appname%3DGoogle%2520Chrome%26needsadmin%3Dtrue/edgedl/chrome/install/GoogleChromeStandaloneEnterprise.msi
 extra line
 EOF
 )
+
+#https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7BCF57E5A6-7C09-370F-166E-82474CC9E559%7D%26lang%3Den%26browser%3D4%26usagestats%3D0%26appname%3DGoogle%2520Chrome%26needsadmin%3Dtrue/update2/installers/ChromeStandaloneSetup.exe
 
 #change log location
 changes=$(echo "https://en.wikipedia.org/wiki/Google_Chrome_release_history")
@@ -272,7 +273,7 @@ if [ $size -gt 2048000 ]; then
 echo
 
 echo extracting installer..
-7z x $tmp/$filename -y -o $tmp > /dev/null
+7z x $tmp/$filename -y -o$tmp > /dev/null
 echo
 
 if [ -f "$tmp/Binary.GoogleChromeInstaller" ]; then
