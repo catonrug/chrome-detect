@@ -230,8 +230,6 @@ extra line
 EOF
 )
 
-
-
 #change log location
 changes=$(echo "https://en.wikipedia.org/wiki/Google_Chrome_release_history")
 
@@ -288,6 +286,14 @@ version=$(strings "$tmp/102~" | grep "url.*codebase" | sed "s/\//\n/g" | grep "^
 echo $version | grep "^[0-9]\+[\., ]\+[0-9]\+[\., ]\+[0-9]\+[\., ]\+[0-9]\+"
 if [ $? -eq 0 ]; then
 echo
+
+
+
+
+#wget -qO- https://en.wikipedia.org/wiki/Google_Chrome_release_history | grep -A 99 "48.0.2564" | grep -B99 -m1 "</tr>" | grep -m1 -A99 "<ul"
+
+
+
 
 
 
