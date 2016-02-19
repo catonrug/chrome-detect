@@ -224,12 +224,13 @@ name=$(echo "Google Chrome")
 
 #lets check latest version for exe and msi installer
 linklist=$(cat <<EOF
+https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7BCF57E5A6-7C09-370F-166E-82474CC9E559%7D%26lang%3Den%26browser%3D4%26usagestats%3D0%26appname%3DGoogle%2520Chrome%26needsadmin%3Dtrue/update2/installers/ChromeStandaloneSetup.exe
 https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7B85AC0EBA-55ED-C688-BABC-1FAEE83D0F41%7D%26lang%3Den%26browser%3D4%26usagestats%3D0%26appname%3DGoogle%2520Chrome%26needsadmin%3Dtrue/edgedl/chrome/install/GoogleChromeStandaloneEnterprise.msi
 extra line
 EOF
 )
 
-#https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7BCF57E5A6-7C09-370F-166E-82474CC9E559%7D%26lang%3Den%26browser%3D4%26usagestats%3D0%26appname%3DGoogle%2520Chrome%26needsadmin%3Dtrue/update2/installers/ChromeStandaloneSetup.exe
+
 
 #change log location
 changes=$(echo "https://en.wikipedia.org/wiki/Google_Chrome_release_history")
@@ -304,8 +305,16 @@ echo "$md5">> $db
 echo "$sha1">> $db
 echo >> $db
 
-#create unique filename for google upload
+case "$filename" in
+*msi)
+newfilename=$(echo $filename | sed "s/\.msi/_`echo $version`\.msi/")
+;;
+*exe)
 newfilename=$(echo $filename | sed "s/\.exe/_`echo $version`\.exe/")
+;;
+esac
+
+#create unique filename for google upload
 mv $tmp/$filename $tmp/$newfilename
 
 #if google drive config exists then upload and delete file:
@@ -316,6 +325,8 @@ echo Make sure you have created \"$appname\" direcotry inside it!
 ../uploader.py "../gd/$appname.cfg" "$tmp/$newfilename"
 echo
 fi
+
+
 
 case "$filename" in
 *msi)
@@ -329,9 +340,12 @@ esac
 emails=$(cat ../posting | sed '$aend of file')
 printf %s "$emails" | while IFS= read -r onemail
 do {
-python ../send-email.py "$onemail" "$name $version $type" "$url 
+python ../send-email.py "$onemail" "$name $version $type" "https://e2028b65548660b2330f8470f0ce842611ccae5e.googledrive.com/host/0B_3uBwg3RcdVcDVKWUFoYmNxRGc/$newfilename 
 $md5
-$sha1"
+$sha1
+
+latest:
+$url "
 } done
 echo
 
@@ -391,4 +405,4 @@ fi
 } done
 
 #clean and remove whole temp direcotry
-#rm $tmp -rf > /dev/null
+rm $tmp -rf > /dev/null
