@@ -222,43 +222,43 @@ fi
 #set name
 name=$(echo "Google Chrome")
 
-#set home page
-home=$(echo "https://picasa.google.com/")
+#lets check latest version for exe and msi installer
+linklist=$(cat <<EOF
+https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7BCF57E5A6-7C09-370F-166E-82474CC9E559%7D%26lang%3Den%26browser%3D4%26usagestats%3D0%26appname%3DGoogle%2520Chrome%26needsadmin%3Dtrue/update2/installers/ChromeStandaloneSetup.exe
+https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7B85AC0EBA-55ED-C688-BABC-1FAEE83D0F41%7D%26lang%3Den%26browser%3D4%26usagestats%3D0%26appname%3DGoogle%2520Chrome%26needsadmin%3Dtrue/edgedl/chrome/install/GoogleChromeStandaloneEnterprise.msi
+extra line
+EOF
+)
 
+#change log location
 changes=$(echo "https://en.wikipedia.org/wiki/Google_Chrome_release_history")
 
-#download home page to check if it is alive
-wget -S --spider -o $tmp/output.log "$home"
+printf %s "$linklist" | while IFS= read -r url
+do {
+
+#check if file is still there
+wget -S --spider -o $tmp/output.log "$url"
 
 grep -A99 "^Resolving" $tmp/output.log | grep "HTTP.*200 OK"
 if [ $? -eq 0 ]; then
 #if file request retrieve http code 200 this means OK
-
-#search for picasa installer
-url=$(wget -qO- "$home" | sed "s/\d034/\n/g" | grep exe)
-echo "$url" | grep "http.*picasa.*exe$"
-if [ $? -eq 0 ]; then
-echo
-
-#download all info about installer link
-wget -S --spider -o $tmp/output.log "$url"
 
 grep -A99 "^Resolving" $tmp/output.log | grep "Last-Modified" 
 if [ $? -eq 0 ]; then
 #if there is such thing as Last-Modified
 echo
 
+#set filename
+filename=$(echo $url | sed "s/^.*\///g")
+
 lastmodified=$(grep -A99 "^Resolving" $tmp/output.log | grep "Last-Modified" | sed "s/^.*: //")
 
 #check if this last modified file name is in database
-grep "$lastmodified" $db > /dev/null
+grep "$filename $lastmodified" $db > /dev/null
 if [ $? -ne 0 ]; then
 
 echo new $name version detected!
 echo
-
-#calculate filename
-filename=$(echo $url | sed "s/^.*\///g")
 
 #download file
 echo Downloading $filename
@@ -268,32 +268,27 @@ wget $url -O $tmp/$filename -q
 size=$(du -b $tmp/$filename | sed "s/\s.*$//g")
 if [ $size -gt 2048000 ]; then
 
+echo extracting installer..
+7z x $tmp/$filename -y -o $tmp > /dev/null
+
+if [ -f "$tmp/Binary.GoogleChromeInstaller" ]; then
+7z x $tmp/Binary.GoogleChromeInstaller -y -o $tmp > /dev/null
+fi
+
+version=$(strings $tmp/102~ | grep "url.*codebase" | sed "s/\//\n/g" | grep "^[0-9]\+[\., ]\+[0-9]\+[\., ]\+[0-9]\+[\., ]\+[0-9]\+")
+
+echo $version | grep "^[0-9]\+[\., ]\+[0-9]\+[\., ]\+[0-9]\+[\., ]\+[0-9]\+"
+if [ $? -eq 0 ]; then
+echo
+
+
+
 echo creating md5 checksum of file..
 md5=$(md5sum $tmp/$filename | sed "s/\s.*//g")
 echo
 
 echo creating sha1 checksum of file..
 sha1=$(sha1sum $tmp/$filename | sed "s/\s.*//g")
-echo
-
-echo detect exact verison of $name
-version=$(pestr $tmp/$filename | grep -m1 -A1 "ProductVersion" | grep -v "ProductVersion" | sed "s/\.[0-9]\+//3")
-echo $version | grep "^[0-9]\+[\., ]\+[0-9]\+[\., ]\+[0-9]\+"
-if [ $? -eq 0 ]; then
-echo
-
-echo looking for change log..
-wget -qO- "$changes" | grep -A99 -m1 "$version" | grep -B99 -m2 "</strong>" | grep -v "<strong>" | sed -e "s/<[^>]*>//g" | sed "s/^[ \t]*//g" | grep -v "^$" | sed "s/^/- /"  > $tmp/change.log
-
-#check if even something has been created
-if [ -f $tmp/change.log ]; then
-
-#calculate how many lines log file contains
-lines=$(cat $tmp/change.log | wc -l)
-if [ $lines -gt 0 ]; then
-echo change log found:
-echo
-cat $tmp/change.log
 echo
 
 echo "$lastmodified">> $db
@@ -315,42 +310,23 @@ echo Make sure you have created \"$appname\" direcotry inside it!
 echo
 fi
 
+case "$filename" in
+*msi)
+type=$(echo "msi")
+;;
+*exe)
+type=$(echo)
+esac
+
 #lets send emails to all people in "posting" file
 emails=$(cat ../posting | sed '$aend of file')
 printf %s "$emails" | while IFS= read -r onemail
 do {
-python ../send-email.py "$onemail" "$name $version" "$url 
-https://0c53195112e2f6ecec4f01f0f753376ef704bf3c.googledrive.com/host/0B_3uBwg3RcdVOXF3Vkw0RG40bjg/$newfilename 
+python ../send-email.py "$onemail" "$name $version $type" "$url 
 $md5
-$sha1
-`cat $tmp/change.log`"
+$sha1"
 } done
 echo
-
-
-else
-#changes.log file has created but changes is mission
-echo changes.log file has created but changes is mission
-emails=$(cat ../maintenance | sed '$aend of file')
-printf %s "$emails" | while IFS= read -r onemail
-do {
-python ../send-email.py "$onemail" "To Do List" "changes.log file has created but changes is mission: 
-$version 
-$changes "
-} done
-fi
-
-else
-#changes.log has not been created
-echo changes.log has not been created
-emails=$(cat ../maintenance | sed '$aend of file')
-printf %s "$emails" | while IFS= read -r onemail
-do {
-python ../send-email.py "$onemail" "To Do List" "changes.log has not been created: 
-$version 
-$changes "
-} done
-fi
 
 else
 #version do not match version pattern
@@ -418,6 +394,8 @@ $url"
 echo 
 echo
 fi
+
+} done
 
 #clean and remove whole temp direcotry
 rm $tmp -rf > /dev/null
