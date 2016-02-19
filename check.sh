@@ -273,12 +273,12 @@ if [ $size -gt 2048000 ]; then
 echo
 
 echo extracting installer..
-7z x $tmp/$filename -y -o$tmp > /dev/null
+7z x $tmp/$filename -y -o$tmp
 echo
 
 if [ -f "$tmp/Binary.GoogleChromeInstaller" ]; then
 echo extracting Binary.GoogleChromeInstaller..
-7z x "$tmp/Binary.GoogleChromeInstaller" -y -o "$tmp" > /dev/null
+7z x "$tmp/Binary.GoogleChromeInstaller" -y -o$tmp
 echo
 fi
 
