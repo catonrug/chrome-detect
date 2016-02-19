@@ -287,15 +287,19 @@ echo $version | grep "^[0-9]\+[\., ]\+[0-9]\+[\., ]\+[0-9]\+[\., ]\+[0-9]\+"
 if [ $? -eq 0 ]; then
 echo
 
+wget -qO- "$changes" | grep -A 99 '`echo "$version" | sed "s/\.[0-9]\+//3"`' | grep -B99 -m1 "</tr>" | grep -m99 -A99 "<ul" | sed -e "s/<[^>]*>//g" | grep -v "^$" | sed "s/\[.*\]//g" | sed -e '/:$/! s/^/- /' > $tmp/change.log
+#https://stackoverflow.com/questions/11958369/sed-replace-only-if-string-exists-in-current-line
 
+#check if even something has been created
+if [ -f $tmp/change.log ]; then
 
-
-#wget -qO- https://en.wikipedia.org/wiki/Google_Chrome_release_history | grep -A 99 "48.0.2564" | grep -B99 -m1 "</tr>" | grep -m1 -A99 "<ul"
-
-
-
-
-
+#calculate how many lines log file contains
+lines=$(cat $tmp/change.log | wc -l)
+if [ $lines -gt 0 ]; then
+echo change log found:
+echo
+cat $tmp/change.log
+echo
 
 echo creating md5 checksum of file..
 md5=$(md5sum $tmp/$filename | sed "s/\s.*//g")
@@ -351,9 +355,35 @@ $md5
 $sha1
 
 latest:
-$url "
+$url 
+
+`cat $tmp/change.log`"
 } done
 echo
+
+else
+#changes.log file has created but changes is mission
+echo changes.log file has created but changes is mission
+emails=$(cat ../maintenance | sed '$aend of file')
+printf %s "$emails" | while IFS= read -r onemail
+do {
+python ../send-email.py "$onemail" "To Do List" "changes.log file has created but changes is mission: 
+$version 
+$changes "
+} done
+fi
+
+else
+#changes.log has not been created
+echo changes.log has not been created
+emails=$(cat ../maintenance | sed '$aend of file')
+printf %s "$emails" | while IFS= read -r onemail
+do {
+python ../send-email.py "$onemail" "To Do List" "changes.log has not been created: 
+$version 
+$changes "
+} done
+fi
 
 else
 #version do not match version pattern
