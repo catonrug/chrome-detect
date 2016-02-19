@@ -222,10 +222,14 @@ fi
 #set name
 name=$(echo "Google Chrome")
 
+home=$(echo "https://www.google.co.uk/work/chrome/browser/")
+
 #lets check latest version for exe and msi installer
 linklist=$(cat <<EOF
-https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7BCF57E5A6-7C09-370F-166E-82474CC9E559%7D%26lang%3Den%26browser%3D4%26usagestats%3D0%26appname%3DGoogle%2520Chrome%26needsadmin%3Dtrue/update2/installers/ChromeStandaloneSetup.exe
-https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7B85AC0EBA-55ED-C688-BABC-1FAEE83D0F41%7D%26lang%3Den%26browser%3D4%26usagestats%3D0%26appname%3DGoogle%2520Chrome%26needsadmin%3Dtrue/edgedl/chrome/install/GoogleChromeStandaloneEnterprise.msi
+https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7BBF2074E4-8356-F8B3-CA3E-6A3D31706CF5%7D%26lang%3Den%26browser%3D4%26usagestats%3D0%26appname%3DGoogle%2520Chrome%26needsadmin%3Dprefers/dl/chrome/install/googlechromestandaloneenterprise.msi
+https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7BBF2074E4-8356-F8B3-CA3E-6A3D31706CF5%7D%26lang%3Den%26browser%3D4%26usagestats%3D0%26appname%3DGoogle%2520Chrome%26needsadmin%3Dprefers%26ap%3Dx64-stable/dl/chrome/install/googlechromestandaloneenterprise64.msi
+https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7BCCC2CBDB-3B3D-8579-804A-661B13499EAC%7D%26lang%3Dlv%26browser%3D4%26usagestats%3D0%26appname%3DGoogle%2520Chrome%26needsadmin%3Dtrue/update2/installers/ChromeStandaloneSetup.exe
+https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7BCCC2CBDB-3B3D-8579-804A-661B13499EAC%7D%26lang%3Dlv%26browser%3D4%26usagestats%3D0%26appname%3DGoogle%2520Chrome%26needsadmin%3Dtrue%26ap%3Dx64-stable/update2/installers/ChromeStandaloneSetup64.exe
 extra line
 EOF
 )
@@ -340,11 +344,18 @@ fi
 
 
 case "$filename" in
+*64.msi)
+type=$(echo "(64-bit) msi")
+;;
+*64.exe)
+type=$(echo "(64-bit)")
+;;
 *msi)
-type=$(echo "msi")
+type=$(echo "(32-bit) msi")
 ;;
 *exe)
-type=$(echo)
+type=$(echo "(32-bit)")
+;;
 esac
 
 #lets send emails to all people in "posting" file
