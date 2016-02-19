@@ -408,7 +408,9 @@ fi
 
 else
 #file is already in database
-echo file is already in database
+echo "$filename $lastmodified"
+echo already in database
+echo
 fi
 
 else
