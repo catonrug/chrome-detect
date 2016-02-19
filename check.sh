@@ -287,7 +287,8 @@ echo $version | grep "^[0-9]\+[\., ]\+[0-9]\+[\., ]\+[0-9]\+[\., ]\+[0-9]\+"
 if [ $? -eq 0 ]; then
 echo
 
-wget -qO- "$changes" | grep -A 99 '`echo "$version" | sed "s/\.[0-9]\+//3"`' | grep -B99 -m1 "</tr>" | grep -m99 -A99 "<ul" | sed -e "s/<[^>]*>//g" | grep -v "^$" | sed "s/\[.*\]//g" | sed -e '/:$/! s/^/- /' > $tmp/change.log
+wget -qO- "$changes" | grep -A 99 `echo "$version" | sed "s/\.[0-9]\+//3"` | grep -B99 -m1 "</tr>" | grep -m99 -A99 "<ul" | sed -e "s/<[^>]*>//g" | grep -v "^$" | sed "s/\[.*\]//g" | sed -e '/:$/! s/^/- /' > $tmp/change.log
+
 #https://stackoverflow.com/questions/11958369/sed-replace-only-if-string-exists-in-current-line
 
 #check if even something has been created
