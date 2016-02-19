@@ -269,15 +269,19 @@ wget $url -O $tmp/$filename -q
 #check downloded file size if it is fair enought
 size=$(du -b $tmp/$filename | sed "s/\s.*$//g")
 if [ $size -gt 2048000 ]; then
+echo
 
 echo extracting installer..
 7z x $tmp/$filename -y -o $tmp > /dev/null
+echo
 
 if [ -f "$tmp/Binary.GoogleChromeInstaller" ]; then
-7z x $tmp/Binary.GoogleChromeInstaller -y -o $tmp > /dev/null
+echo extracting Binary.GoogleChromeInstaller..
+7z x "$tmp/Binary.GoogleChromeInstaller" -y -o "$tmp" > /dev/null
+echo
 fi
 
-version=$(strings $tmp/102~ | grep "url.*codebase" | sed "s/\//\n/g" | grep "^[0-9]\+[\., ]\+[0-9]\+[\., ]\+[0-9]\+[\., ]\+[0-9]\+")
+version=$(strings "$tmp/102~" | grep "url.*codebase" | sed "s/\//\n/g" | grep "^[0-9]\+[\., ]\+[0-9]\+[\., ]\+[0-9]\+[\., ]\+[0-9]\+")
 
 echo $version | grep "^[0-9]\+[\., ]\+[0-9]\+[\., ]\+[0-9]\+[\., ]\+[0-9]\+"
 if [ $? -eq 0 ]; then
@@ -386,4 +390,4 @@ fi
 } done
 
 #clean and remove whole temp direcotry
-rm $tmp -rf > /dev/null
+#rm $tmp -rf > /dev/null
