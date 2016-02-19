@@ -310,7 +310,7 @@ echo creating sha1 checksum of file..
 sha1=$(sha1sum $tmp/$filename | sed "s/\s.*//g")
 echo
 
-echo "$lastmodified">> $db
+echo "$filename $lastmodified">> $db
 echo "$version">> $db
 echo "$md5">> $db
 echo "$sha1">> $db
