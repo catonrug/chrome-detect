@@ -276,12 +276,12 @@ if [ $size -gt 2048000 ]; then
 echo
 
 echo extracting installer..
-7z x $tmp/$filename -y -o$tmp
+7z x $tmp/$filename -y -o$tmp  > /dev/null
 echo
 
 if [ -f "$tmp/Binary.GoogleChromeInstaller" ]; then
 echo extracting Binary.GoogleChromeInstaller..
-7z x "$tmp/Binary.GoogleChromeInstaller" -y -o$tmp
+7z x "$tmp/Binary.GoogleChromeInstaller" -y -o$tmp > /dev/null
 echo
 fi
 
@@ -332,17 +332,6 @@ esac
 #create unique filename for google upload
 mv $tmp/$filename $tmp/$newfilename
 
-#if google drive config exists then upload and delete file:
-if [ -f "../gd/$appname.cfg" ]
-then
-echo Uploading $newfilename to Google Drive..
-echo Make sure you have created \"$appname\" direcotry inside it!
-../uploader.py "../gd/$appname.cfg" "$tmp/$newfilename"
-echo
-fi
-
-
-
 case "$filename" in
 *64.msi)
 type=$(echo "(64-bit) msi")
@@ -362,12 +351,9 @@ esac
 emails=$(cat ../posting | sed '$aend of file')
 printf %s "$emails" | while IFS= read -r onemail
 do {
-python ../send-email.py "$onemail" "$name $version $type" "https://e2028b65548660b2330f8470f0ce842611ccae5e.googledrive.com/host/0B_3uBwg3RcdVcDVKWUFoYmNxRGc/$newfilename 
+python ../send-email.py "$onemail" "$name $version $type" "$url 
 $md5
 $sha1
-
-latest:
-$url 
 
 `cat $tmp/change.log`"
 } done
