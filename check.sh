@@ -236,6 +236,8 @@ changes=$(echo "https://en.wikipedia.org/wiki/Google_Chrome_release_history")
 printf %s "$linklist" | while IFS= read -r url
 do {
 
+rm $tmp/* -rf > /dev/null
+
 #check if file is still there
 wget -S --spider -o $tmp/output.log "$url"
 
@@ -363,20 +365,6 @@ emails=$(cat ../maintenance | sed '$aend of file')
 printf %s "$emails" | while IFS= read -r onemail
 do {
 python ../send-email.py "$onemail" "To Do List" "the following link do not include Last-Modified: 
-$url "
-} done
-echo 
-echo
-fi
-
-else
-#installer not found
-echo $name installer not found
-emails=$(cat ../maintenance | sed '$aend of file')
-printf %s "$emails" | while IFS= read -r onemail
-do {
-python ../send-email.py "$onemail" "To Do List" "$name installer not found: 
-$home 
 $url "
 } done
 echo 
