@@ -260,7 +260,7 @@ filename=$(echo $url | sed "s/^.*\///g")
 lastmodified=$(grep -A99 "^Resolving" $tmp/output.log | grep "Last-Modified" | sed "s/^.*: //")
 
 #check if this last modified file name is in database
-grep "$filename $lastmodified" $db > /dev/null
+grep "$filename $lastmodified" $db
 if [ $? -ne 0 ]; then
 
 echo new $name version detected!
@@ -279,6 +279,7 @@ echo extracting installer..
 7z x $tmp/$filename -y -o$tmp  > /dev/null
 echo
 
+#msi installer no not have [102~] file but we want to get one which is inside [Binary.GoogleChromeInstaller]
 if [ -f "$tmp/Binary.GoogleChromeInstaller" ]; then
 echo extracting Binary.GoogleChromeInstaller..
 7z x "$tmp/Binary.GoogleChromeInstaller" -y -o$tmp > /dev/null
@@ -291,8 +292,7 @@ echo $version | grep "^[0-9]\+[\., ]\+[0-9]\+[\., ]\+[0-9]\+[\., ]\+[0-9]\+"
 if [ $? -eq 0 ]; then
 echo
 
-wget -qO- "$changes" | grep -A 99 `echo "$version" | sed "s/\.[0-9]\+//3"` | grep -B99 -m1 "</tr>" | grep -m99 -A99 "<ul" | sed -e "s/<[^>]*>//g" | grep -v "^$" | sed "s/\[.*\]//g" | sed -e '/:$/! s/^/- /' > $tmp/change.log
-
+wget -qO- "$changes" | grep -A 99 `echo "$version" | sed "s/\.[0-9]\+//3"` | grep -B99 -m1 "</tr>" | grep -m99 -A99 "<ul" | sed -e "s/<[^>]*>//g" | grep -v "^$" | sed "s/\[.*\]//g" | sed -e "/:$/! s/^/- /" > $tmp/change.log
 #https://stackoverflow.com/questions/11958369/sed-replace-only-if-string-exists-in-current-line
 
 #check if even something has been created
@@ -319,18 +319,6 @@ echo "$version">> $db
 echo "$md5">> $db
 echo "$sha1">> $db
 echo >> $db
-
-case "$filename" in
-*msi)
-newfilename=$(echo $filename | sed "s/\.msi/_`echo $version`\.msi/")
-;;
-*exe)
-newfilename=$(echo $filename | sed "s/\.exe/_`echo $version`\.exe/")
-;;
-esac
-
-#create unique filename for google upload
-mv $tmp/$filename $tmp/$newfilename
 
 case "$filename" in
 *64.msi)
@@ -408,8 +396,7 @@ fi
 
 else
 #file is already in database
-echo "$filename $lastmodified"
-echo already in database
+echo $filename is  in database
 echo
 fi
 
